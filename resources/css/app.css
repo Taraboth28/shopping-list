@@ -1,0 +1,107 @@
+@import 'tailwindcss';
+
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.vue';
+@source '../**/*.js';
+
+/* Night mode is class-based: <html class="dark"> (set by resources/js/composables/useTheme.js). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Semantic color tokens. Components use these (bg-surface, text-ink, border-line, …)
+ * instead of fixed grays, so day / night mode only has to swap the values below.
+ */
+:root {
+    color-scheme: light;
+    --theme-canvas: #f4f6f5;
+    --theme-surface: #ffffff;
+    --theme-surface-muted: #f1f4f2;
+    --theme-line: #e3e8e5;
+    --theme-line-strong: #cfd6d2;
+    --theme-ink: #0b1410;
+    --theme-ink-soft: #3a4540;
+    --theme-ink-muted: #6b7671;
+    --theme-accent: #047857;
+    --theme-accent-soft: #d1fae5;
+}
+
+:root.dark {
+    color-scheme: dark;
+    --theme-canvas: #0a0d0c;
+    --theme-surface: #151a18;
+    --theme-surface-muted: #1f2522;
+    --theme-line: #2a312e;
+    --theme-line-strong: #3a423e;
+    --theme-ink: #f6faf8;
+    --theme-ink-soft: #d0d8d4;
+    --theme-ink-muted: #95a19b;
+    --theme-accent: #34d399;
+    --theme-accent-soft: #064e3b;
+}
+
+@theme inline {
+    --color-canvas: var(--theme-canvas);
+    --color-surface: var(--theme-surface);
+    --color-surface-muted: var(--theme-surface-muted);
+    --color-line: var(--theme-line);
+    --color-line-strong: var(--theme-line-strong);
+    --color-ink: var(--theme-ink);
+    --color-ink-soft: var(--theme-ink-soft);
+    --color-ink-muted: var(--theme-ink-muted);
+    --color-accent: var(--theme-accent);
+    --color-accent-soft: var(--theme-accent-soft);
+}
+
+@theme {
+    --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+@layer base {
+    html {
+        scrollbar-gutter: stable;
+    }
+
+    body {
+        @apply bg-canvas text-ink-soft transition-colors duration-300;
+    }
+}
+
+@layer components {
+    .card {
+        @apply rounded-2xl border border-line bg-surface shadow-sm transition-colors duration-300;
+    }
+
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+    }
+
+    .btn-primary {
+        @apply bg-ink text-surface hover:bg-emerald-500 hover:text-neutral-950 focus-visible:outline-emerald-500;
+    }
+
+    .btn-secondary {
+        @apply border border-line-strong bg-surface text-ink-soft hover:bg-surface-muted focus-visible:outline-neutral-400;
+    }
+
+    .btn-danger {
+        @apply bg-rose-600 text-white hover:bg-rose-700 focus-visible:outline-rose-600;
+    }
+
+    .btn-ghost {
+        @apply px-2 text-ink-muted hover:bg-surface-muted hover:text-ink focus-visible:outline-neutral-400;
+    }
+
+    .input {
+        @apply block w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-muted focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30 focus:outline-none;
+    }
+
+    .label {
+        @apply mb-1 block text-sm font-medium text-ink-soft;
+    }
+
+    .field-error {
+        @apply mt-1 text-xs text-rose-600 dark:text-rose-400;
+    }
+}
