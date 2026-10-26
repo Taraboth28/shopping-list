@@ -14,7 +14,7 @@ const props = defineProps({
 const emit = defineEmits(['submit', 'close']);
 
 /** One-tap names offered when creating a list. */
-const NAME_SUGGESTIONS = ['🛒 Weekly groceries', '🥬 Market', '🏠 Household', '🎉 Party', '💊 Pharmacy'];
+const NAME_SUGGESTIONS = ['🛒 Groceries', '🥬 Market', '🏠 Household', '🎉 Party', '💊 Pharmacy'];
 
 const form = reactive({ name: '', budget: null, budgetCurrency: 'USD' });
 const errors = reactive({ name: '', budget: '' });
@@ -73,7 +73,7 @@ function submit() {
                     v-model="form.name"
                     class="input py-2.5 text-base"
                     :class="{ 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/30': errors.name }"
-                    placeholder="e.g. Weekly groceries"
+                    placeholder="e.g. Groceries"
                     maxlength="80"
                     @input="errors.name = ''"
                 />
