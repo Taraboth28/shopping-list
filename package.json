@@ -3,6 +3,7 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
+        "build:netlify": "vite build --config vite.netlify.config.js",
         "dev": "vite"
     },
     "devDependencies": {

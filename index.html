@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<!-- Static shell for the Netlify build (vite.netlify.config.js); mirrors resources/views/app.blade.php. -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Shopping List</title>
+    <link rel="icon" href="/favicon.ico">
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=poppins:400,500,600,700" rel="stylesheet">
+    <script>
+        // Apply day / night mode before first paint (mirrors resources/js/composables/useTheme.js).
+        (function () {
+            var stored = null;
+            try { stored = localStorage.getItem('theme'); } catch (e) {}
+            var dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.classList.toggle('dark', dark);
+        })();
+
+        window.__APP_CONFIG__ = { name: 'Shopping List' };
+    </script>
+    <link rel="stylesheet" href="/resources/css/app.css">
+    <script type="module" src="/resources/js/app.js"></script>
+</head>
+<body class="antialiased">
+    <div id="app"></div>
+</body>
+</html>

@@ -1,0 +1,12 @@
+[build]
+  command = "npm run build:netlify"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Vue Router uses HTML5 history, so every path must serve the SPA shell.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
