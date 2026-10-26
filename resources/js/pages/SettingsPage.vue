@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import AppIcon from '../components/ui/AppIcon.vue';
 import ConfirmDialog from '../components/ui/ConfirmDialog.vue';
 import { exportData, importData, resetAll, state, updateSettings } from '../stores/shoppingStore';
+import { findLatestChat, sendTelegramMessage, telegram } from '../stores/telegram';
 import { CURRENCIES } from '../utils/money';
 
 const rate = ref(state.settings.khrPerUsd);
@@ -30,6 +31,57 @@ function saveRate() {
     rateError.value = '';
     updateSettings({ khrPerUsd: Number(rate.value) });
     flash('Exchange rate saved.');
+}
+
+const tgForm = ref({ botToken: telegram.botToken, chatId: telegram.chatId });
+const tgError = ref('');
+const tgBusy = ref(false);
+
+async function telegramAction(action) {
+    tgError.value = '';
+    tgBusy.value = true;
+
+    try {
+        await action();
+    } catch (error) {
+        tgError.value = error.message;
+    } finally {
+        tgBusy.value = false;
+    }
+}
+
+function findChat() {
+    return telegramAction(async () => {
+        if (!tgForm.value.botToken.trim()) {
+            throw new Error('Paste your bot token first.');
+        }
+
+        const chat = await findLatestChat(tgForm.value.botToken.trim());
+        tgForm.value.chatId = chat.id;
+        flash(`Found chat: ${chat.name || chat.id}. Press Save to keep it.`);
+    });
+}
+
+function saveTelegram() {
+    return telegramAction(async () => {
+        const botToken = tgForm.value.botToken.trim();
+        const chatId = String(tgForm.value.chatId).trim();
+
+        if (!botToken || !chatId) {
+            throw new Error('Enter both the bot token and the chat ID.');
+        }
+
+        await sendTelegramMessage('✅ Shopping List is connected. Your reports will arrive here.', { botToken, chatId });
+        Object.assign(telegram, { botToken, chatId });
+        flash('Telegram connected. A test message was sent.');
+    });
+}
+
+function disconnectTelegram() {
+    Object.assign(telegram, { botToken: '', chatId: '' });
+    tgForm.value = { botToken: '', chatId: '' };
+    tgError.value = '';
+    flash('Telegram disconnected.');
 }
 
 function download() {
@@ -100,6 +152,46 @@ function reset() {
                 <p v-if="rateError" class="field-error">{{ rateError }}</p>
                 <p v-else class="mt-1 text-xs text-ink-muted">Used to add up prices entered in different currencies.</p>
             </form>
+        </section>
+
+        <section class="card space-y-4 p-5">
+            <div class="flex items-center justify-between gap-3">
+                <h2 class="font-semibold text-ink">Telegram</h2>
+                <span
+                    class="rounded-full px-2.5 py-0.5 text-xs font-medium"
+                    :class="telegram.botToken && telegram.chatId ? 'bg-accent-soft text-accent' : 'bg-surface-muted text-ink-muted'"
+                >
+                    {{ telegram.botToken && telegram.chatId ? 'Connected' : 'Not connected' }}
+                </span>
+            </div>
+
+            <ol class="list-decimal space-y-1 pl-5 text-sm text-ink-muted">
+                <li>In Telegram, open <a href="https://t.me/BotFather" target="_blank" rel="noopener" class="font-medium text-accent underline">@BotFather</a>, send <code>/newbot</code> and follow the steps. Copy the token it gives you.</li>
+                <li>Open your new bot and press <strong>Start</strong> (or send it any message).</li>
+                <li>Paste the token below, press <strong>Find my chat</strong>, then <strong>Save</strong>.</li>
+            </ol>
+
+            <form novalidate class="space-y-3" @submit.prevent="saveTelegram">
+                <div>
+                    <label class="label" for="tg-token">Bot token</label>
+                    <input id="tg-token" v-model="tgForm.botToken" type="password" autocomplete="off" class="input font-mono" placeholder="123456789:AA…" />
+                </div>
+                <div>
+                    <label class="label" for="tg-chat">Chat ID</label>
+                    <div class="flex gap-2">
+                        <input id="tg-chat" v-model="tgForm.chatId" inputmode="numeric" autocomplete="off" class="input font-mono" placeholder="e.g. 123456789" />
+                        <button type="button" class="btn btn-secondary shrink-0" :disabled="tgBusy" @click="findChat">Find my chat</button>
+                    </div>
+                </div>
+                <p v-if="tgError" class="field-error">{{ tgError }}</p>
+                <div class="flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-primary" :disabled="tgBusy">
+                        <AppIcon name="send" :size="16" /> {{ tgBusy ? 'Checking…' : 'Save & send test' }}
+                    </button>
+                    <button v-if="telegram.botToken" type="button" class="btn btn-ghost hover:text-rose-600" @click="disconnectTelegram">Disconnect</button>
+                </div>
+            </form>
+            <p class="text-xs text-ink-muted">The token is saved in this browser only and is never included in backups.</p>
         </section>
 
         <section class="card space-y-3 p-5">

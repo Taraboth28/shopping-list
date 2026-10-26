@@ -5,6 +5,7 @@ import ItemForm from '../components/lists/ItemForm.vue';
 import ItemRow from '../components/lists/ItemRow.vue';
 import ListFormModal from '../components/lists/ListFormModal.vue';
 import ListSummary from '../components/lists/ListSummary.vue';
+import ShareReportModal from '../components/lists/ShareReportModal.vue';
 import AppIcon from '../components/ui/AppIcon.vue';
 import BaseModal from '../components/ui/BaseModal.vue';
 import ConfirmDialog from '../components/ui/ConfirmDialog.vue';
@@ -36,6 +37,7 @@ const showEditList = ref(false);
 const editingItem = ref(null);
 const itemToDelete = ref(null);
 const confirmDeleteList = ref(false);
+const showShare = ref(false);
 
 function saveList(fields) {
     updateList(props.id, fields);
@@ -79,6 +81,9 @@ function duplicate() {
             <div class="mt-2 flex flex-wrap items-center justify-between gap-3">
                 <h1 class="min-w-0 truncate text-2xl font-bold text-ink sm:text-3xl">{{ list.name }}</h1>
                 <div class="flex flex-wrap gap-1">
+                    <button type="button" class="btn btn-ghost hover:text-sky-600" @click="showShare = true">
+                        <AppIcon name="send" :size="16" /> <span class="text-sm">Telegram</span>
+                    </button>
                     <button type="button" class="btn btn-ghost" @click="showEditList = true">
                         <AppIcon name="pencil" :size="16" /> <span class="text-sm">Edit</span>
                     </button>
@@ -117,6 +122,8 @@ function duplicate() {
             </ul>
             <p v-else class="px-5 py-10 text-center text-sm text-ink-muted">No items yet. Add your first one above.</p>
         </section>
+
+        <ShareReportModal :open="showShare" :list="list" @close="showShare = false" />
 
         <ListFormModal :open="showEditList" :list="list" @submit="saveList" @close="showEditList = false" />
 
